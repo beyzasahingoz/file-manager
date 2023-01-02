@@ -66,8 +66,7 @@ int main(){
         //checked command's first element.
         if (strcmp(command[0], "init") == 0){
             count++;
-            printf("%s\n", command[0]);
-            printf("%d\n", count);
+            printf("%d. client is created\n", count);
         }
         //if first element equals to create, created pthread and called createfile function.
         else if (strcmp(command[0], "create") == 0)
