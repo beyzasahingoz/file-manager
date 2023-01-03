@@ -41,9 +41,9 @@ int main(){
     char **command;
     void *status;
     int file_read;
-    int returnResponse = 0;
+    int resp = 0;
     char *myfifo = "/tmp/myfifo";
-    char buf[MAX_BUF];
+    char buffer[MAX_BUF];
     //file_list is filled with '/0'
     memset(file_List, '\0', sizeof(file_List));
     //initialized mutex and assigned lock as first parameter.
@@ -55,9 +55,9 @@ int main(){
     {
         //read myfifo and myfifo opened as read only
         file_read = open(myfifo, O_RDONLY);
-        read(file_read, buf, MAX_BUF);
+        read(file_read, buffer, MAX_BUF);
         //command is splited into words.
-        command = splitIntoWords(buf);
+        command = splitIntoWords(buffer);
 
         struct params params;
         //assigned command elements to params variables.
@@ -66,38 +66,38 @@ int main(){
         //checked command's first element.
         if (strcmp(command[0], "init") == 0){
             count++;
-            printf("%d. client is created\n", count);
+            printf("%d.client is created\n", count);
         }
         //if first element equals to create, created pthread and called createfile function.
         else if (strcmp(command[0], "create") == 0)
         {
             pthread_create(&threads[0], NULL, createFile, &params);
-            returnResponse = 1;
+            resp = 1;
         }
         //if first element equals to delete, created pthread and called deletefile function.
         else if (strcmp(command[0], "delete") == 0)
         {
             pthread_create(&threads[1], NULL, deleteFile, &params);
-            returnResponse = 1;
+            resp = 1;
         }
         //if first element equals to write, created pthread and called writefile function.
         else if (strcmp(command[0], "write") == 0)
         {
             pthread_create(&threads[2], NULL, writeFile, &params);
-            returnResponse = 1;
+            resp = 1;
         }
         //if first element equals to read, created pthread and called readfile function.
         else if (strcmp(command[0], "read") == 0)
         {
             pthread_create(&threads[3], NULL, readFile, &params);
-            returnResponse = 1;
+            resp = 1;
         }
         //if first element equals to exit, program gave a response and exit that client.
         else if (strcmp(command[0], "exit") == 0)
         {
-            printf("Exit\n");
+            printf("Client has been logged out.\n");
             strcpy(response, "Program has finished\n");
-            returnResponse = 1;
+            resp = 1;
             count--;
             //if client number (count) = 0, exited file manager too.
             if(count==0){
@@ -107,7 +107,6 @@ int main(){
                 exit(0);
             } 
             //printf("%s\n", myArray[0]);
-            printf("%d\n", count);
         }
         //waits till the threads are finished
         for (int i = 0; i < 4; i++)
@@ -115,7 +114,7 @@ int main(){
             pthread_join(threads[i], &status);
         }
 
-        if(returnResponse == 1){
+        if(resp == 1){
             file_read = open(myfifo, O_WRONLY);
             write(file_read, response, sizeof(response));
             close(file_read);
