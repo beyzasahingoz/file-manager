@@ -140,7 +140,7 @@ void splitIntoWords(char **comm, char *buff)
     // continues until token is not null
     while (token != NULL)
     {
-        // assigned to words[i]
+        // assigned to comm[i++]
         comm[i++] = token;
         // splited according to  " " and assigned to token.
         token = strtok(NULL, " ");
