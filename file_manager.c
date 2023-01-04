@@ -11,7 +11,7 @@
 
 #define MAX_BUF 128
 // defined variables
-char file_List[10][100], response[128], c;
+char file_List[10][10], response[128], c;
 int count = 0, id = 0;
 pthread_t threads[4];
 // found file_list size and assigned to the file_length.
@@ -26,22 +26,21 @@ struct params
     char *arg2;
 };
 // initialized functions.
-char **generateMatrix(int columns, int rows);
-char **splitIntoWords(char *str);
 void *createFile(char *args);
 void *deleteFile(char *args);
 void *readFile(char *args);
 void *writeFile(char *args);
 int FileCount();
+void splitIntoWords(char **comm, char *buff);
 
 int main()
 {
-
-    char **command;
+    // defined variables
+    char *command[20];
     void *status;
-    int file_read;
-    int resp = 0;
-    char *myfifo = "/tmp/myfifo";
+    int file_read, resp = 0;
+    // defined path
+    char *myfifo = "/tmp/file_manager_named_pipe";
     char buffer[MAX_BUF];
     // file_list is filled with '/0'
     memset(file_List, '\0', sizeof(file_List));
@@ -56,7 +55,7 @@ int main()
         file_read = open(myfifo, O_RDONLY);
         read(file_read, buffer, MAX_BUF);
         // command is splited into words.
-        command = splitIntoWords(buffer);
+        splitIntoWords(command, buffer);
 
         struct params params;
         // assigned command elements to params variables.
@@ -132,38 +131,22 @@ int main()
     pthread_cond_destroy(&cond);
     exit(0);
 }
-// creates 2D matrix
-char **generateMatrix(int columns, int rows)
-{
-    // creates array as dynamic in memory.
-    char **matrix = malloc(rows * sizeof(char *));
-    for (int i = 0; i < rows; i++)
-    {
-        matrix[i] = malloc(columns * sizeof(char));
-    }
-
-    return matrix;
-}
 // splits a input into words.
-char **splitIntoWords(char *str)
+void splitIntoWords(char **comm, char *buff)
 {
     int i = 0;
     // splited according to  " " and assigned to token.
-    char *token = strtok(str, " ");
-    char **words;
-    // generated 10,10 2D matris for words.
-    words = generateMatrix(10, 10);
+    char *token = strtok(buff, " ");
     // continues until token is not null
     while (token != NULL)
     {
         // assigned to words[i]
-        *(words + i) = token;
-        i++;
+        comm[i++] = token;
         // splited according to  " " and assigned to token.
         token = strtok(NULL, " ");
     }
 
-    return words;
+    comm[i] = NULL;
 }
 
 void *createFile(char *args)
@@ -289,7 +272,7 @@ void *readFile(char *args)
             textArr[idx] = c;
             idx++;
         }
-        textArr[idx-1]='\0';
+        textArr[idx - 1] = '\0';
         fclose(fptr);
         strcpy(response, textArr);
     }
@@ -348,7 +331,7 @@ void *writeFile(char *args)
     }
     pthread_mutex_unlock(&lock);
 }
-
+// count file list elements.
 int FileCount()
 {
     int count = 0;
