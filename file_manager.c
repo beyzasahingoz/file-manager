@@ -110,7 +110,7 @@ int main()
         }
         else
         {
-            strcpy(response, "Wrong Command!\n");
+            strcpy(response, "Wrong Command!\nCommands are:\n-create\n-delete\n-read\n-write\n");
             resp = 1;
         }
         // waits till the threads are finished
@@ -140,7 +140,7 @@ void splitIntoWords(char **comm, char *buff)
     // continues until token is not null
     while (token != NULL)
     {
-        // assigned to comm[i++]
+        // assigned to words[i]
         comm[i++] = token;
         // splited according to  " " and assigned to token.
         token = strtok(NULL, " ");
